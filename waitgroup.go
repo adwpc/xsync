@@ -5,6 +5,10 @@ import (
 	"time"
 )
 
+func NewXWaitGroup() *XWaitGroup {
+	return &XWaitGroup{}
+}
+
 type XWaitGroup struct {
 	sync.Mutex
 	wg      sync.WaitGroup
