@@ -6,13 +6,16 @@ import (
 )
 
 func NewXWaitGroup() *XWaitGroup {
-	return &XWaitGroup{}
+	return &XWaitGroup{
+		once: &sync.Once{},
+	}
 }
 
 type XWaitGroup struct {
 	sync.Mutex
 	wg      sync.WaitGroup
 	counter int
+	once    *sync.Once
 }
 
 func (swg *XWaitGroup) Add(delta int) {
@@ -25,10 +28,12 @@ func (swg *XWaitGroup) Add(delta int) {
 func (swg *XWaitGroup) Done() {
 	swg.Lock()
 	defer swg.Unlock()
-	if swg.counter > 0 {
-		swg.counter--
-		swg.wg.Done()
-	}
+	swg.once.Do(func() {
+		if swg.counter > 0 {
+			swg.counter--
+			swg.wg.Done()
+		}
+	})
 }
 
 func (swg *XWaitGroup) Wait(timeout time.Duration) bool {
@@ -41,6 +46,7 @@ func (swg *XWaitGroup) Wait(timeout time.Duration) bool {
 	case <-c:
 		return false // completed normally
 	case <-time.After(timeout):
+		swg.wg.Done()
 		return true // timed out
 	}
 }
