@@ -13,7 +13,7 @@ import (
 )
 
 func main() {
-	var swg xsync.XWaitGroup
+    swg := xsync.NewXWaitGroup()
 	swg.Add(1)
 	go func() {
 		time.Sleep(5 * time.Second) // simulate a long task
