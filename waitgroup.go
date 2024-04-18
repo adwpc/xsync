@@ -46,7 +46,10 @@ func (swg *XWaitGroup) Wait(timeout time.Duration) bool {
 	case <-c:
 		return false // completed normally
 	case <-time.After(timeout):
-		swg.wg.Done()
+		if swg.counter > 0 {
+			swg.counter--
+			swg.wg.Done()
+		}
 		return true // timed out
 	}
 }
